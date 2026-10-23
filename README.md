@@ -1,50 +1,104 @@
-# OPPO Dolby Vision P5 MKV Repair
+# OPPO DV P5 Repair
 
-**0.1BETA · Windows x64 · [下载测试版 / Download](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1)**
+**0.1BETA · Windows x64**
 
-有些杜比视界 P5 视频，在电脑上能打开，放到安装了 [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 补丁的 OPPO 播放器上却播放不正常。本工具针对其中一种原因：**视频内容还在，但 MKV 中用于告诉播放器“该怎样读取这条视频”的头信息不完整。**
+[Download the Windows app](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1) · [中文说明](#中文说明)
 
-它借助 FFmpeg 和 MKVToolNix，把视频取出来，再重新装进一个新的 MKV，尝试补全这部分信息。整个过程不重新压制画面，原文件也会保留。
+## What problem does it address?
 
-> 它处理的是部分文件的结构问题，不是所有杜比视界播放故障都能用它解决。
+This project was created for a specific playback problem: **some Dolby Vision Profile 5 MKV files play correctly in Infuse on Apple TV, Kodi or CoreELEC, but appear as SDR BT.709 with purple and green colors on an OPPO player—even after installing the [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) mod.**
 
-## 为什么重新封装可能解决问题？
+OPPO DV P5 Repair brings **FFmpeg and MKVToolNix** together in a Windows app to make the file-processing steps available with one click. It aims to resolve this problem for affected files without re-encoding the picture or overwriting the original.
 
-可以把 MKV 理解为一个盒子：里面装着视频、音轨、字幕等内容，盒子上还记录了播放器读取这些内容所需的信息。
+## Thanks to the original author
 
-HEVC 视频需要一组解码参数，名字叫 **VPS、SPS、PPS**。有些文件把这些参数留在视频数据里面，但 MKV 对应的视频配置头（**hvcC**）里没有完整记录。不同播放软件、播放器对这种文件的处理方式可能不同，因此“电脑上能播”不能证明这部分头信息完整。
+This project would not exist without the work of Brazilian developer **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** and his **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** project, which provides Dolby Vision MKV playback support on the player side. His work made this project possible.
 
-本工具尝试做的，是**利用文件中仍然存在的信息，重新整理封装头**。如果问题确实出在这里，重新封装后就有可能改善兼容性。
+Our app is a separate Windows utility for preparing affected video files for that playback setup. It does not install the player mod, and is not an official release from its author, OPPO or Dolby.
 
-它不能凭空制造已经丢失的视频参数，也不会修补损坏画面。文件本身缺少必要数据、问题来自播放器设置或其他原因时，这条方法可能无效。
+Thanks also to the **[FFmpeg](https://ffmpeg.org/)** and **[MKVToolNix](https://mkvtoolnix.download/)** developers. These open-source tools do the underlying media processing; this project puts the workflow, checks and batch handling into one interface.
 
-## 软件具体做了什么？
+## How can it help?
 
-1. **先检查文件。** 用 ffprobe 读取视频编码、杜比视界 Profile，以及 hvcC 和参数头情况。已具备完整头信息的 P5 文件会跳过修复；不属于修复范围的文件会给出提示。
-2. **取出原视频。** 用 FFmpeg 的视频复制模式导出 HEVC，并通过 `hevc_mp4toannexb` 整理码流格式。这一步不重新编码画面。
-3. **重新装回 MKV。** 用 MKVToolNix 从导出的 HEVC 重新建立视频轨和配置头，同时从原文件带回音轨、字幕、章节及附件。
-4. **保留并核对播放时间。** 提取原视频逐帧时间戳用于重新封装，修正默认帧时长信息，并对输出时间戳进行对照。无法取得必要时间戳时会停止修复。
-5. **检查新文件。** 核对参数头、分辨率、DV 标志、轨道数量及时间戳等信息，写入报告。检查失败会明确标记，不能当作修复成功。
+A video can contain the picture data yet still lack some of the information a particular player needs to read it correctly. Different playback apps handle these files differently, which is why the same file may work in one setup and fail in another.
 
-**这里的“保留画质”，指视频不经过有损重编码；不表示输出文件与原文件逐字节相同。** 重新封装会改变文件结构和部分封装信息。
+This app uses **FFmpeg to copy out the original video**, then **MKVToolNix to put it into a new MKV**, rebuilding the relevant playback information from data still present in the file. It brings over the audio, subtitles, chapters and attachments, and preserves the original video timing.
 
-技术细节可查阅 [FFmpeg 码流过滤器说明](https://ffmpeg.org/ffmpeg-bitstream-filters.html#hevc_005fmp4toannexb)与 [mkvmerge 使用说明](https://mkvtoolnix.download/doc/mkvmerge.html)。这些工具负责提取和封装；本项目把检查、工具调用、批处理和结果报告整合成 Windows 图形界面。
+In plain terms: **it reorganizes the file so the player has the information it needs, while keeping the encoded picture.** This can help when incomplete video configuration is the cause. It cannot recover data that is genuinely missing or fix every cause of purple/green playback.
 
-## 它和原作者的播放器补丁是什么关系？
+The app checks the file before processing and checks the result afterward. P5 files with complete configuration are skipped. If the output fails a check, it is marked as failed rather than presented as a successful repair.
 
-[fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 在播放器端提供杜比视界 MKV 播放相关修改；本工具在 Windows 上处理部分有问题的视频文件。**两者是独立项目。** 感谢原作者的工作，本工具不包含或安装该补丁，也不代表原作者、OPPO 或 Dolby 官方。
+## Download and use
 
-说明该使用场景，不等于已经验证所有补丁版本、播放器和显示设备组合。
+1. Open [Releases](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1) and download **`OPPO_DV_P5_Repair_0.1BETA_Windows_x64.zip`**. Extract it and run the EXE. GitHub's `Source code` downloads are for building the app yourself.
+2. Install or extract FFmpeg and MKVToolNix using the links below. The app tries to locate them automatically; select their executables under **Tool paths** if necessary.
+3. Drag in an MKV or a folder. Subfolders are included, and files are processed one at a time.
+4. Use **Inspect only** to check a file, then **Repair + verify** for files that need repair and are within the supported scope.
+5. Each batch gets a new result folder: **Videos** contains output media and **Reports** contains inspection reports. Reports use the interface language selected when the batch starts.
 
-## 怎样使用？
+Original files are preserved, and outputs retain the source file's modification time. Allow enough free disk space for temporary files when processing large videos.
 
-1. 在 [Releases](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1) 下载 **`OPPO_DV_P5_Repair_0.1BETA_Windows_x64.zip`**，解压运行。`Source code` 是源码，不是可直接运行的程序。
-2. 下载并安装或解压下方两套工具。程序会尝试自动查找；找不到时，在“工具路径”中选择对应 EXE。
-3. 拖入一个 MKV，或整个文件夹。文件夹会包含子文件夹中的 MKV，多个文件按顺序处理。
-4. 建议先点 **“只读自检”** 看检查结果；需要处理且属于修复范围时，再点 **“一键修复 + 自检”**。
-5. 每批会创建独立结果文件夹：`Videos` 放输出视频，`Reports` 放报告。报告采用任务开始时选择的界面语言。
+### Required tools
 
-原文件不覆盖，输出保留原文件的修改时间。请预留足够磁盘空间，处理长视频时会产生较大的临时文件。
+| Tool | What to download |
+| --- | --- |
+| FFmpeg | [Windows builds](https://www.gyan.dev/ffmpeg/builds/): choose the release essentials ZIP. The required files are `bin/ffmpeg.exe` and `bin/ffprobe.exe`. |
+| MKVToolNix | [Official downloads](https://mkvtoolnix.download/downloads.html#windows): choose the Windows 64-bit installer or portable package. It must include `mkvmerge.exe`, `mkvextract.exe` and `mkvpropedit.exe`. |
+
+Keep the full tool folders so required libraries remain available. The Microsoft Store edition of MKVToolNix is not suitable for this app's command-line calls. Neither tool is bundled with this release.
+
+## Scope and current status
+
+- Intended for **some Dolby Vision Profile 5 MKV files** used with the player mod above. It does not convert other Dolby Vision profiles to P5.
+- Files with multiple main video tracks are rejected to avoid dropping video tracks. An attached cover image is treated separately.
+- A report marked as passed means the implemented file checks passed. It does **not** confirm correct colors, full decoding, actual Dolby Vision playback or perfect A/V sync on your equipment. Check the beginning, middle and end on your player and display.
+- This is a **public beta**. The release passed 29 top-level automated tests, including synthetic-media tests using real FFmpeg and MKVToolNix. Full desktop interaction and OPPO playback acceptance remain incomplete. See [TESTING.md](TESTING.md).
+
+## Build and feedback
+
+On Windows with a compatible Go toolchain, run `./build.ps1`; output goes to `dist/`. The current release was built with Go 1.27.3 for Windows amd64.
+
+When reporting a problem, include Windows/tool versions, the selected mode, error text and relevant report details. Remove private file paths. Please distinguish a processing error from a problem seen when playing the output.
+
+No open-source license has been selected for this initial publication. The third-party tools have their own licenses; public visibility of this repository does not by itself grant a general license to modify or redistribute this project's code and assets.
+
+---
+
+## 中文说明
+
+### 这个软件解决什么问题？
+
+这个项目针对的是一种具体情况：**部分 Dolby Vision Profile 5 的 MKV 视频，在 Apple TV（ATV）的 Infuse、Kodi 或 CoreELEC 上能正常播放，但 OPPO 安装 [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 插件后，播放这些文件时仍显示为 SDR BT.709，画面偏紫、偏绿。**
+
+OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处理过程整合成 Windows 下的一键操作，尝试修复这类文件的兼容问题。处理时不重新压制画面，也不覆盖原文件。
+
+### 感谢原作者
+
+首先感谢巴西开发者 **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** 及其 **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** 项目。他在播放器端实现的杜比视界 MKV 播放支持，是本项目诞生的基础。**没有他的工作，就不会有这个项目。**
+
+本软件是在这一使用场景下，为处理部分有问题的视频文件而开发的独立 Windows 工具，不包含或安装播放器插件，也不是原作者、OPPO 或 Dolby 的官方软件。
+
+同时感谢 **[FFmpeg](https://ffmpeg.org/)** 和 **[MKVToolNix](https://mkvtoolnix.download/)** 的开发者。底层的视频处理由这些开源工具完成，本项目负责把操作流程、自检和批处理整合到一个界面中。
+
+### 为什么这样处理可能有用？
+
+视频里有画面数据，不代表文件中供播放器读取的说明信息就是完整的。不同软件对这类文件的处理方式不同，所以同一个文件，在一套设备上能播，换到另一套设备上就可能出问题。
+
+本软件先用 **FFmpeg 取出原视频**，再用 **MKVToolNix 重新保存为一个新的 MKV**，利用文件中仍然存在的数据，补全相关的播放信息。同时带回音轨、字幕、章节和附件，并保留原视频的播放时间信息。
+
+通俗地说，就是：**画面本身不重新压制，把文件重新整理一遍，让播放器能读到需要的信息。** 如果原因正是这部分信息不完整，这种处理就可能改善播放兼容性。但它不能找回真正丢失的数据，也不能解决所有偏紫、偏绿的问题。
+
+软件会在处理前检查文件，处理后再检查结果。相关信息已经完整的 P5 文件会直接跳过；输出检查失败时会明确标记，不会当作修复成功。
+
+### 下载和使用
+
+1. 在 [Releases](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1) 下载 **`OPPO_DV_P5_Repair_0.1BETA_Windows_x64.zip`**，解压后运行 EXE。页面上的 `Source code` 是源码，不是直接运行的程序。
+2. 下载并安装或解压下方两套工具。软件会尝试自动查找；找不到时，在“工具路径”中选择对应 EXE。
+3. 拖入一个 MKV，或整个文件夹。子文件夹中的 MKV 也会加入，多个文件按顺序处理。
+4. 可先点 **“只读自检”** 查看情况；文件需要处理且属于支持范围时，再点 **“一键修复 + 自检”**。
+5. 每批自动建立独立结果文件夹：**Videos** 放输出视频，**Reports** 放自检报告。报告采用任务开始时选择的界面语言。
+
+原文件保留，输出文件保留原文件的修改时间。处理大体积视频时会产生临时文件，请预留足够磁盘空间。
 
 ### 需要下载的工具
 
@@ -53,45 +107,19 @@ HEVC 视频需要一组解码参数，名字叫 **VPS、SPS、PPS**。有些文�
 | FFmpeg | [Windows 下载页](https://www.gyan.dev/ffmpeg/builds/)，选择 release essentials ZIP，解压后使用 `bin/ffmpeg.exe` 和 `bin/ffprobe.exe`。 |
 | MKVToolNix | [官方下载页](https://mkvtoolnix.download/downloads.html#windows)，选择 Windows 64-bit 安装版或便携版，需有 `mkvmerge.exe`、`mkvextract.exe`、`mkvpropedit.exe`。 |
 
-保留完整工具文件夹，避免只复制 EXE 导致运行库缺失。MKVToolNix 微软商店版不适用于本程序的命令行调用。发布包不附带上述工具。
+请保留完整工具文件夹，避免只复制 EXE 导致运行库缺失。MKVToolNix 微软商店版不适用于本程序的命令行调用。发布包不附带这两套工具。
 
-## 哪些情况不要误以为已经修好？
+### 支持范围与当前状态
 
-- **头信息本来完整：** 软件会跳过，不会为了生成一个新文件而重复封装。
-- **不是 P5，或有多条主视频轨：** 不在当前自动修复范围。封面附件不算主视频轨。
-- **码流损坏、参数确实丢失：** 重新封装不能恢复不存在的内容。
-- **报告显示通过：** 只表示已执行的结构检查通过，不代表整部视频完整解码、画面颜色、实机杜比视界播放或音画同步已经验证。请在实际设备上抽查开头、中间和结尾。
+- 面向安装上述播放器插件后，**部分 P5 MKV 文件**出现的播放问题，不用于将其他杜比视界格式转换成 P5。
+- 有多条主视频轨的文件会拒绝自动修复，避免丢失视频轨；封面附件单独识别，不算主视频轨。
+- 报告显示通过，只代表软件执行的文件检查通过。**不代表画面颜色、完整解码、实机杜比视界播放或音画同步已经验证。** 请在自己的播放器和显示设备上抽查开头、中间、结尾。
+- 当前为**公开测试版**。发布版本有 29 项顶层自动测试通过，包含使用真实 FFmpeg/MKVToolNix 的合成媒体测试；尚未完成全部桌面交互和 OPPO 实机播放验收。详见 [测试记录](TESTING.md)。
 
-当前是公开测试版。29 项顶层自动测试通过，其中包括合成媒体的真实 FFmpeg/MKVToolNix 集成检查；尚未完成全部桌面交互和 OPPO 实机播放验收。详见 [测试记录](TESTING.md)。
+### 编译与反馈
 
-## English
+在 Windows 上使用兼容的 Go 工具链运行 `./build.ps1`，程序输出到 `dist/`。当前发布版使用 Go 1.27.3 构建，适用于 Windows x64。
 
-Some Dolby Vision P5 MKVs may play on a computer but behave differently on an OPPO player using the [fandangos/oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) modification. This Windows tool targets one possible cause: incomplete video configuration headers in the MKV.
+反馈问题时，请提供 Windows 和工具版本、处理模式、错误信息及报告相关内容，并去掉私人路径。请区分“处理时报错”和“播放输出文件时异常”。
 
-The video data may still contain the HEVC parameters needed to read it, while the container header does not list them completely. This tool copies the video out with FFmpeg and remuxes it with MKVToolNix so that the video configuration can be rebuilt from available data. It does not re-encode the picture or invent missing video data.
-
-The app checks the source first, skips P5 files with complete headers, preserves the original file, carries over non-video tracks and attachments, and reuses the original video timestamps. It then checks the output structure and compares timestamps. A failed check is reported as a failure.
-
-Download the **Windows_x64.zip** from [Releases](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1). Install FFmpeg and MKVToolNix using the links above, select their executables if needed, and drag in your MKV files or folders. Each batch creates separate `Videos` and `Reports` folders. Reports use the UI language selected at batch start.
-
-This project is independent of the player-side modification and does not install it. It does not convert other DV profiles to P5 or fix every playback problem. Structural checks do not certify full decoding, correct colors, actual Dolby Vision playback or A/V sync. Check the beginning, middle and end on your player and display.
-
-## Build
-
-Requires a compatible Go toolchain on Windows. The current release was built with Go 1.27.3 for Windows amd64.
-
-```powershell
-./build.ps1
-```
-
-Output is written to `dist/`. FFmpeg and MKVToolNix are separate dependencies.
-
-## Feedback
-
-提交问题时，请提供 Windows 和工具版本、处理模式、错误信息及报告相关内容，并去掉私人路径。请区分“处理时报错”和“在设备上播放异常”。
-
-When reporting a problem, include Windows/tool versions, the selected mode, error text and relevant report details. Remove private file paths and distinguish processing failures from playback problems.
-
-## Licensing
-
-No open-source license has been selected for this initial publication. Public visibility alone does not grant a general license to modify or redistribute this project. Third-party product names and assets remain subject to their respective rights.
+本项目首次发布尚未选择开源许可证。第三方工具遵循各自的许可证；仓库公开本身不等于授予对本项目代码和素材的一般修改、再分发许可。
