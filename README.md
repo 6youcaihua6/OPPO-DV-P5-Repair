@@ -10,6 +10,12 @@ This project was created for a specific playback problem: **some Dolby Vision Pr
 
 OPPO DV P5 Repair brings **FFmpeg and MKVToolNix** together in a Windows app to make the file-processing steps available with one click. It aims to resolve this problem for affected files without re-encoding the picture or overwriting the original.
 
+## Playback test environment
+
+**Testing is carried out with an LG G5 TV and an OPPO UDP-203 Blu-ray player running `20XRU-65-0131` firmware, with the oppo-dv-mkv mod installed.**
+
+This is the project's playback test setup. Results may differ with other displays, players, firmware or mod versions.
+
 ## Thanks to the original author
 
 This project would not exist without the work of developer **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** and his **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** project, which provides Dolby Vision MKV playback support on the player side. His work made this project possible.
@@ -63,13 +69,15 @@ Keep the full tool folders so required libraries remain available. The Microsoft
 - Intended for **some Dolby Vision Profile 5 MKV files** used with the player mod above. It does not convert other Dolby Vision profiles to P5.
 - Files with multiple main video tracks are rejected to avoid dropping video tracks. An attached cover image is treated separately.
 - A report marked as passed means the implemented file checks passed. It does **not** confirm correct colors, full decoding, actual Dolby Vision playback or perfect A/V sync on your equipment. Check the beginning, middle and end on your player and display.
-- This is a **public beta**. The release passed 29 top-level automated tests, including synthetic-media tests using real FFmpeg and MKVToolNix. Full desktop interaction and OPPO playback acceptance remain incomplete. See [TESTING.md](TESTING.md).
+- This is a **public beta**. The release passed 29 top-level automated tests, including synthetic-media tests using real FFmpeg and MKVToolNix. Automated tests do not cover every desktop interaction or playback scenario. The playback setup is listed above; see [TESTING.md](TESTING.md) for the automated test coverage.
 
 ## Build and feedback
 
 On Windows with a compatible Go toolchain, run `./build.ps1`; output goes to `dist/`. The current release was built with Go 1.27.3 for Windows amd64.
 
-When reporting a problem, include Windows/tool versions, the selected mode, error text and relevant report details. Remove private file paths. Please distinguish a processing error from a problem seen when playing the output.
+**Suggestions and bug reports are welcome.** Please open an [Issue](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/issues/new/choose) to suggest improvements, report a bug or share results from your own setup.
+
+For bugs, please include the app version, Windows version, FFmpeg/MKVToolNix versions, player and TV models, player firmware and mod version, steps to reproduce, and relevant logs or report excerpts. Explain what you expected and what actually happened, including whether the original and processed files behave differently. Remove private file paths before posting.
 
 No open-source license has been selected for this initial publication. The third-party tools have their own licenses; public visibility of this repository does not by itself grant a general license to modify or redistribute this project's code and assets.
 
@@ -82,6 +90,12 @@ No open-source license has been selected for this initial publication. The third
 这个项目针对的是一种具体情况：**部分 Dolby Vision Profile 5 的 MKV 视频，在 Apple TV（ATV）的 Infuse、Kodi 或 CoreELEC 上能正常播放，但 OPPO 安装 [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 插件后，播放这些文件时仍显示为 SDR BT.709，画面偏紫、偏绿。**
 
 OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处理过程整合成 Windows 下的一键操作，尝试修复这类文件的兼容问题。处理时不重新压制画面，也不覆盖原文件。
+
+### 播放测试环境
+
+**本项目使用 LG G5 电视和 OPPO UDP-203 蓝光机进行播放测试；蓝光机固件为 `20XRU-65-0131`，并安装 oppo-dv-mkv 插件。**
+
+这是本项目的播放测试环境；其他电视、播放器、固件或插件版本的表现可能不同。
 
 ### 感谢原作者
 
@@ -136,12 +150,14 @@ OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处�
 - 面向安装上述播放器插件后，**部分 P5 MKV 文件**出现的播放问题，不用于将其他杜比视界格式转换成 P5。
 - 有多条主视频轨的文件会拒绝自动修复，避免丢失视频轨；封面附件单独识别，不算主视频轨。
 - 报告显示通过，只代表软件执行的文件检查通过。**不代表画面颜色、完整解码、实机杜比视界播放或音画同步已经验证。** 请在自己的播放器和显示设备上抽查开头、中间、结尾。
-- 当前为**公开测试版**。发布版本有 29 项顶层自动测试通过，包含使用真实 FFmpeg/MKVToolNix 的合成媒体测试；尚未完成全部桌面交互和 OPPO 实机播放验收。详见 [测试记录](TESTING.md)。
+- 当前为**公开测试版**。发布版本有 29 项顶层自动测试通过，包含使用真实 FFmpeg/MKVToolNix 的合成媒体测试；自动测试不涵盖全部桌面交互和播放场景，实机测试环境见上文。自动测试覆盖范围详见 [测试记录](TESTING.md)。
 
 ### 编译与反馈
 
 在 Windows 上使用兼容的 Go 工具链运行 `./build.ps1`，程序输出到 `dist/`。当前发布版使用 Go 1.27.3 构建，适用于 Windows x64。
 
-反馈问题时，请提供 Windows 和工具版本、处理模式、错误信息及报告相关内容，并去掉私人路径。请区分“处理时报错”和“播放输出文件时异常”。
+**欢迎提出改进建议、提交 BUG，也欢迎分享你在其他设备上的测试结果。** 请通过 [GitHub Issues](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/issues/new/choose) 反馈。
+
+提交 BUG 时，建议附上软件版本、Windows 版本、FFmpeg/MKVToolNix 版本、播放器和电视型号、固件及插件版本、复现步骤，以及相关日志或报告片段。请说明预期结果和实际现象，尤其是原文件与处理后文件的播放差异；公开前请去掉私人路径。
 
 本项目首次发布尚未选择开源许可证。第三方工具遵循各自的许可证；仓库公开本身不等于授予对本项目代码和素材的一般修改、再分发许可。
