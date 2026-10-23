@@ -18,15 +18,26 @@ Our app is a separate Windows utility for preparing affected video files for tha
 
 Thanks also to the **[FFmpeg](https://ffmpeg.org/)** and **[MKVToolNix](https://mkvtoolnix.download/)** developers. These open-source tools do the underlying media processing; this project puts the workflow, checks and batch handling into one interface.
 
-## How can it help?
+## What causes this problem, and how does the repair work?
 
-A video can contain the picture data yet still lack some of the information a particular player needs to read it correctly. Different playback apps handle these files differently, which is why the same file may work in one setup and fail in another.
+**The issue targeted here is incomplete MKV packaging: the HEVC configuration stored in the MKV’s `CodecPrivate` data, called `hvcC`, does not contain the required VPS/SPS/PPS parameter sets.** These are the basic instructions the decoder needs to interpret the video. They may still be present inside the video stream, even though they were not written into the container’s configuration data.
 
-This app uses **FFmpeg to copy out the original video**, then **MKVToolNix to put it into a new MKV**, rebuilding the relevant playback information from data still present in the file. It brings over the audio, subtitles, chapters and attachments, and preserves the original video timing.
+The original mod’s [Known limitations](https://github.com/fandangos/oppo-dv-mkv#known-limitations) documents this case, including files remuxed from `hev1` MP4. **The mod deliberately leaves such files on the normal playback path instead of enabling Dolby Vision, because enabling DV for them can hard-lock the player.** This is an intentional safeguard, not proof that the mod was installed incorrectly.
 
-In plain terms: **it reorganizes the file so the player has the information it needs, while keeping the encoded picture.** This can help when incomplete video configuration is the cause. It cannot recover data that is genuinely missing or fix every cause of purple/green playback.
+That explains the symptom this project addresses: the OPPO may report SDR BT.709 instead of entering Dolby Vision mode, and the P5 picture appears purple and green. P5 video is not ordinary SDR video; processing it without the intended Dolby Vision color handling produces incorrect colors. Playback apps such as Infuse, Kodi or CoreELEC may handle the same file differently, so successful playback there does not establish that its MKV configuration is suitable for this OPPO playback path.
 
-The app checks the file before processing and checks the result afterward. P5 files with complete configuration are skipped. If the output fails a check, it is marked as failed rather than presented as a successful repair.
+### What the one-click repair does
+
+1. **Check what is missing.** Read the DV profile and the hvcC configuration, including the VPS/SPS/PPS counts. Complete P5 files are skipped.
+2. **Extract the original HEVC video with FFmpeg.** The app uses stream copy and `hevc_mp4toannexb`, without re-encoding the picture.
+3. **Build a new MKV with MKVToolNix.** Reading the extracted HEVC lets mkvmerge collect the parameter sets available in the stream and write them into the new video configuration. The original audio, subtitles, chapters and attachments are carried over, using the original video timestamps.
+4. **Check the result.** Confirm that the output hvcC now contains VPS/SPS/PPS, check the DV configuration flags and track counts, and compare video timestamps. A failed check is reported as a failure.
+
+For example, an affected file can have a **23-byte hvcC with VPS/SPS/PPS counts of `0/0/0`**. The relevant repair result is that the new file’s hvcC contains the required parameter sets—not merely that a new MKV was created.
+
+**In everyday terms: the video already has the necessary information, but the original MKV did not put it where this playback path needs it. This app uses FFmpeg and MKVToolNix to write that information into the new MKV correctly.** It is not converting SDR into Dolby Vision, changing P5 into another profile, or applying a purple/green color filter.
+
+The encoded picture is copied rather than re-compressed. This method cannot recreate parameter sets that are genuinely absent from the source, and a purple/green picture alone does not prove that this particular packaging issue is the cause. Output checks and playback on your own equipment still matter.
 
 ## Download and use
 
@@ -80,15 +91,26 @@ OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处�
 
 同时感谢 **[FFmpeg](https://ffmpeg.org/)** 和 **[MKVToolNix](https://mkvtoolnix.download/)** 的开发者。底层的视频处理由这些开源工具完成，本项目负责把操作流程、自检和批处理整合到一个界面中。
 
-### 为什么这样处理可能有用？
+### 问题到底出在哪里？软件怎样修复？
 
-视频里有画面数据，不代表文件中供播放器读取的说明信息就是完整的。不同软件对这类文件的处理方式不同，所以同一个文件，在一套设备上能播，换到另一套设备上就可能出问题。
+**本项目针对的具体原因是：MKV 封装时，没有把 HEVC 视频必需的 VPS/SPS/PPS 参数集正确写入 `CodecPrivate` 中的 `hvcC` 配置信息。** 这几组参数可以理解为解码视频所需的基本说明。视频码流里可能仍有这些信息，但 MKV 封装没有把它们完整写到对应的位置。
 
-本软件先用 **FFmpeg 取出原视频**，再用 **MKVToolNix 重新保存为一个新的 MKV**，利用文件中仍然存在的数据，补全相关的播放信息。同时带回音轨、字幕、章节和附件，并保留原视频的播放时间信息。
+原作者已经在插件的[已知限制](https://github.com/fandangos/oppo-dv-mkv#known-limitations)中说明了这一情况，包括从 `hev1` MP4 转封装而来的文件。**遇到这类文件时，插件会有意不启用杜比视界，继续按播放器原来的方式播放，因为强行启用 DV 可能造成播放器死锁。** 因此，装好了插件仍不能正确播放这类文件，不一定是插件安装出了问题。
 
-通俗地说，就是：**画面本身不重新压制，把文件重新整理一遍，让播放器能读到需要的信息。** 如果原因正是这部分信息不完整，这种处理就可能改善播放兼容性。但它不能找回真正丢失的数据，也不能解决所有偏紫、偏绿的问题。
+这就对应了本项目要处理的现象：OPPO 没有进入杜比视界播放，而是显示为 SDR BT.709，画面偏紫、偏绿。P5 视频本来就不是普通 SDR 视频，没有走正确的杜比视界色彩处理流程，颜色自然不对。Infuse、Kodi、CoreELEC 等软件对同一文件的处理方式可能不同，能在那里正常播放，并不能说明这份 MKV 的配置信息也适合 OPPO 这条播放流程。
 
-软件会在处理前检查文件，处理后再检查结果。相关信息已经完整的 P5 文件会直接跳过；输出检查失败时会明确标记，不会当作修复成功。
+#### 一键修复具体做什么？
+
+1. **先检查缺了什么。** 读取 DV Profile、hvcC，以及 VPS/SPS/PPS 的数量；相关信息已经完整的 P5 文件直接跳过。
+2. **用 FFmpeg 取出原始 HEVC 视频。** 使用视频复制模式和 `hevc_mp4toannexb`，不重新压制画面。
+3. **用 MKVToolNix 重新封装。** 让 mkvmerge 从取出的 HEVC 中读取已有参数集，正确写入新 MKV 的视频配置信息。同时带回原文件的音轨、字幕、章节和附件，并使用原视频时间戳。
+4. **检查有没有真正补上。** 确认输出 hvcC 中已有 VPS/SPS/PPS，再检查 DV 配置标志、轨道数量和视频时间戳；失败会明确标记。
+
+例如，问题文件可能显示 **hvcC 只有 23 字节，VPS/SPS/PPS 数量为 `0/0/0`**。处理后，关键是新文件的 hvcC 中正确包含了这些参数集，而不是只看“有没有生成一个新 MKV”。
+
+**说白了，就是视频本来带着需要的信息，但原来的 MKV 没有把它们放到这条播放流程需要的位置；本软件借助 FFmpeg 和 MKVToolNix，把这些信息正确写进新的 MKV。** 它不是把 SDR 转成杜比视界，不是转换 DV Profile，也不是给紫绿画面套一个调色滤镜。
+
+画面采用原始编码数据复制，不经过重新有损压制。如果源文件真的丢失了必要参数，这种方法也无法凭空找回。仅凭画面偏紫、偏绿，不能断定所有文件都属于同一种原因，仍应结合自检结果和实机播放判断。
 
 ### 下载和使用
 
