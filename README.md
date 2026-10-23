@@ -12,7 +12,7 @@ OPPO DV P5 Repair brings **FFmpeg and MKVToolNix** together in a Windows app to 
 
 ## Thanks to the original author
 
-This project would not exist without the work of Brazilian developer **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** and his **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** project, which provides Dolby Vision MKV playback support on the player side. His work made this project possible.
+This project would not exist without the work of developer **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** and his **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** project, which provides Dolby Vision MKV playback support on the player side. His work made this project possible.
 
 Our app is a separate Windows utility for preparing affected video files for that playback setup. It does not install the player mod, and is not an official release from its author, OPPO or Dolby.
 
@@ -85,7 +85,7 @@ OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处�
 
 ### 感谢原作者
 
-首先感谢巴西开发者 **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** 及其 **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** 项目。他在播放器端实现的杜比视界 MKV 播放支持，是本项目诞生的基础。**没有他的工作，就不会有这个项目。**
+首先感谢作者 **[Vitor DallAcqua / fandangos](https://github.com/fandangos)** 及其 **[oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv)** 项目。他在播放器端实现的杜比视界 MKV 播放支持，是本项目诞生的基础。**没有他的工作，就不会有这个项目。**
 
 本软件是在这一使用场景下，为处理部分有问题的视频文件而开发的独立 Windows 工具，不包含或安装播放器插件，也不是原作者、OPPO 或 Dolby 的官方软件。
 
