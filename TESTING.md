@@ -16,7 +16,7 @@ For real-tool tests, set `P5_INTEGRATION=1`, `P5_FFMPEG`, `P5_FFPROBE`, and `P5_
 
 ## Not verified
 
-- Full interactive desktop acceptance, cross-monitor DPI operation and QR scanning.
+- Full interactive desktop acceptance, cross-monitor DPI operation.
 - Full-film P5 repair and OPPO/display playback.
 - `go vet` reports an existing unsafe-pointer warning in the Win32 `WM_DPICHANGED` handler. The Windows-provided rectangle is read during message handling; the static analysis run is not described as clean.
 
