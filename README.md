@@ -2,6 +2,8 @@
 
 **0.1BETA · Windows x64**
 
+A lightweight Windows GUI for **Dolby Vision Profile 5 MKV repair** on the **OPPO UDP-203** with the [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) mod. Uses **FFmpeg and MKVToolNix** to rebuild incomplete **HEVC hvcC configuration** without re-encoding the video.
+
 [Download the Windows app](https://github.com/6youcaihua6/OPPO-DV-P5-Repair/releases/tag/v0.1.0-beta.1) · [中文说明](#中文说明)
 
 ## What problem does it address?
@@ -94,6 +96,8 @@ No open-source license has been selected for this initial publication. The third
 ---
 
 ## 中文说明
+
+一个轻量的 Windows 图形化工具，用于处理 **OPPO UDP-203** 安装 [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 插件后，部分 **Dolby Vision Profile 5 MKV** 文件出现的播放偏色问题。借助 **FFmpeg 和 MKVToolNix** 补全 **HEVC hvcC 配置信息**，无需重新压制视频。
 
 ### 这个软件解决什么问题？
 
