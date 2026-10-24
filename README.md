@@ -10,6 +10,16 @@ This project was created for a specific playback problem: **some Dolby Vision Pr
 
 OPPO DV P5 Repair brings **FFmpeg and MKVToolNix** together in a Windows app to make the file-processing steps available with one click. It aims to resolve this problem for affected files without re-encoding the picture or overwriting the original.
 
+## Why this app exists
+
+This project grew out of an inconvenience I encountered in my own playback setup. **For the affected files I tested, simply opening the original MKV in MKVToolNix and remuxing it, or using a generic MKV-to-MP4 rewrap operation, did not fix the purple/green picture.** The files needed the relevant processing steps with FFmpeg or another tool that handles this issue correctly. Changing the container alone was not enough in those tests.
+
+The app's value is making that workflow accessible: **a small Windows download, a straightforward graphical interface, and one-click processing instead of manually entering commands.** Experienced users may prefer to run the underlying tools themselves; newcomers should also be able to get the job done without first learning the command-line options.
+
+Developers with more experience are welcome to discuss improvements and build on this work, with the aim of creating more capable open-source tools for everyone. I hope the discussion can focus on making the workflow better, rather than dismissing the usefulness of remuxing or a GUI that makes it easier to use.
+
+Thanks also to **OpenAI Codex** for its AI-assisted development support. Without that assistance, I could not have brought this project to completion.
+
 ## Playback test environment
 
 **Testing is carried out with an LG G5 TV and an OPPO UDP-203 Blu-ray player running `20XRU-65-0131` firmware, with the oppo-dv-mkv mod installed.**
@@ -53,7 +63,7 @@ The encoded picture is copied rather than re-compressed. This method cannot recr
 4. Use **Inspect only** to check a file, then **Repair + verify** for files that need repair and are within the supported scope.
 5. Each batch gets a new result folder: **Videos** contains output media and **Reports** contains inspection reports. Reports use the interface language selected when the batch starts.
 
-Original files are preserved, and outputs retain the source file's modification time. Allow enough free disk space for temporary files when processing large videos.
+Original files are preserved, and outputs retain the source file's modification time. **For smoother processing, copy the movie to a local SSD before dragging it into the app.** Make sure the output drive has enough free space for both the exported video and temporary files; free space for just one output file may not be enough.
 
 ### Required tools
 
@@ -90,6 +100,16 @@ No open-source license has been selected for this initial publication. The third
 这个项目针对的是一种具体情况：**部分 Dolby Vision Profile 5 的 MKV 视频，在 Apple TV（ATV）的 Infuse、Kodi 或 CoreELEC 上能正常播放，但 OPPO 安装 [oppo-dv-mkv](https://github.com/fandangos/oppo-dv-mkv) 插件后，播放这些文件时仍显示为 SDR BT.709，画面偏紫、偏绿。**
 
 OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处理过程整合成 Windows 下的一键操作，尝试修复这类文件的兼容问题。处理时不重新压制画面，也不覆盖原文件。
+
+### 为什么做这个软件？
+
+这个项目源于我自己使用时遇到的不便。**对于我实测的这类问题文件，直接用 MKVToolNix 重新封装原始 MKV，或者用普通的“换容器”功能转成 MP4，仍然会偏紫、偏绿。** 需要先经过 FFmpeg，或其他能正确处理这一问题的工具，完成相应处理步骤；在这些测试中，只换一个容器并不能解决问题。
+
+本软件的意义，就是把这套流程变得更容易使用：**以很小的程序体积，提供直观的图形化界面，把原本需要手动输入命令的步骤简化为一键操作，让新人也能方便地处理文件。** 熟悉技术的人可以直接使用底层工具，不熟悉命令行的人也应该有一个容易上手的选择。
+
+如果有技术更强的开发者，欢迎交流改进方案，也欢迎以此为基础开发更完善的开源工具，方便我们所有人。希望大家把讨论放在怎样让工具更好用、怎样解决实际问题上，而不是简单否定重新封装或图形化工具的意义。
+
+另外，感谢 **OpenAI Codex AI 工具**在开发过程中的辅助。没有这些帮助，我无法完成这个项目。
 
 ### 播放测试环境
 
@@ -134,7 +154,7 @@ OPPO DV P5 Repair 借助 **FFmpeg 和 MKVToolNix** 两套开源工具，把处�
 4. 可先点 **“只读自检”** 查看情况；文件需要处理且属于支持范围时，再点 **“一键修复 + 自检”**。
 5. 每批自动建立独立结果文件夹：**Videos** 放输出视频，**Reports** 放自检报告。报告采用任务开始时选择的界面语言。
 
-原文件保留，输出文件保留原文件的修改时间。处理大体积视频时会产生临时文件，请预留足够磁盘空间。
+原文件保留，输出文件保留原文件的修改时间。**建议先把影片复制到本地固态硬盘，再拖入软件处理。** 请给输出目录所在磁盘留足空间，同时考虑导出视频和处理中产生的临时文件，不要只按最终视频大小预留。
 
 ### 需要下载的工具
 
